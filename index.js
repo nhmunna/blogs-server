@@ -44,7 +44,7 @@ async function run() {
             const id = req.params.id;
             // console.log(id);
             const query = { _id: ObjectId(id) };
-            const blog = await servicesCollection.findOne(query);
+            const blog = await blogsCollection.findOne(query);
             res.json(blog);
         })
 
