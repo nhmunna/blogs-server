@@ -4,12 +4,14 @@ const cors = require('cors');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 const ObjectId = require('mongodb').ObjectId;
+const fileUpload = require('express-fileupload');
 
 const port = process.env.PORT || 5000;
 
 //MIDDLE WARE
 app.use(cors());
 app.use(express.json());
+app.use(fileUpload());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d2gdw.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
@@ -23,23 +25,16 @@ async function run() {
         const database = client.db('online_blog');
         const blogsCollection = database.collection('blogs');
         const usersCollection = database.collection('users');
+        const userInfoCollection = database.collection('userInfo');
 
-        //GET ALL SERVICES
+        //GET ALL BLOG
         app.get('/blogs', async (req, res) => {
             const cursor = blogsCollection.find({});
             const blogs = await cursor.toArray();
             res.send(blogs);
         });
 
-        //POST SERVICES
-        app.post('/blogs', async (req, res) => {
-            const blog = req.body;
-            const result = await blogsCollection.insertOne(blog);
-            // console.log(result);
-            res.json(result);
-        });
-
-        //GET SINGLE SERVICE
+        //GET SINGLE BLOG
         app.get('/blogs/:id', async (req, res) => {
             const id = req.params.id;
             // console.log(id);
@@ -76,22 +71,30 @@ async function run() {
             res.json(result);
         })
 
-        //ADD BLOGS
-        // app.post('/blogs', async (req, res) => {
-        //     const name = req.body.name;
-        //     const email = req.body.email;
-        //     const pic = req.files.image;
-        //     const picData = pic.data;
-        //     const encodedPic = picData.toString('base64');
-        //     const imageBuffer = Buffer.from(encodedPic, 'base64');
-        //     const doctor = {
-        //         name,
-        //         email,
-        //         image: imageBuffer
-        //     }
-        //     const result = await doctorsCollection.insertOne(doctor);
-        //     res.json(result);
-        // })
+        // ADD BLOGS
+        app.post('/blogs', async (req, res) => {
+            console.log(req.body);
+            console.log(req.files);
+            const title = req.body.title;
+            const writer = req.body.writer;
+            const description = req.body.description;
+            const time = req.body.time;
+            const email = req.body.email;
+            const pic = req.files.img;
+            const picData = pic.data;
+            const encodedPic = picData.toString('base64');
+            const imageBuffer = Buffer.from(encodedPic, 'base64');
+            const blog = {
+                title,
+                writer,
+                description,
+                time,
+                email,
+                img: imageBuffer
+            }
+            const result = await blogsCollection.insertOne(blog);
+            res.json(result);
+        })
 
         //ORDER API
         // app.post('/orders', async (req, res) => {
