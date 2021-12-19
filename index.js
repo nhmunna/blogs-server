@@ -26,12 +26,23 @@ async function run() {
         const blogsCollection = database.collection('blogs');
         const usersCollection = database.collection('users');
         const userInfoCollection = database.collection('userInfo');
-
+        
         //GET ALL BLOG
         app.get('/blogs', async (req, res) => {
-            const cursor = blogsCollection.find({});
-            const blogs = await cursor.toArray();
-            res.send(blogs);
+            const email = req.query.email;
+            
+            if(email){
+                const query = { email: email };
+                const cursor = blogsCollection.find(query);
+                const blog = await cursor.toArray();
+                res.json(blog)
+            }
+            else{
+                const cursor = blogsCollection.find({});
+                const blogs = await cursor.toArray();
+                res.send(blogs);
+            }
+            
         });
 
         //GET SINGLE BLOG
@@ -42,7 +53,6 @@ async function run() {
             const blog = await blogsCollection.findOne(query);
             res.json(blog);
         })
-
 
         //ADD USER
         app.post('/users', async (req, res) => {
@@ -68,6 +78,27 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await ordersCollection.deleteOne(query);
+            res.json(result);
+        })
+
+        // ADD USER
+        app.post('/userInfo', async (req, res) => {
+            console.log(req.body);
+            console.log(req.files);
+            const name = req.body.name;
+            const about = req.body.about;
+            const email = req.body.email;
+            const pic = req.files.img;
+            const picData = pic.data;
+            const encodedPic = picData.toString('base64');
+            const imageBuffer = Buffer.from(encodedPic, 'base64');
+            const userInfo = {
+                name,
+                about,
+                email,
+                img: imageBuffer
+            }
+            const result = await userInfoCollection.insertOne(userInfo);
             res.json(result);
         })
 
@@ -104,14 +135,15 @@ async function run() {
         //     res.json(result);
         // });
 
-        //FIND ORDER BY EMAIL
-        // app.get('/orders', async (req, res) => {
-        //     const email = req.query.email;
-        //     const query = { email: email };
-        //     const cursor = ordersCollection.find(query);
-        //     const order = await cursor.toArray();
-        //     res.json(order)
-        // });
+        //FIND USER INFO BY EMAIL
+        app.get('/userInfo', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = userInfoCollection.find(query);
+            const user = await cursor.toArray();
+            res.json(user)
+        });
+        
 
     }
     finally {
