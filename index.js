@@ -77,7 +77,7 @@ async function run() {
         app.delete('/blogs/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await ordersCollection.deleteOne(query);
+            const result = await blogsCollection.deleteOne(query);
             res.json(result);
         })
 
@@ -127,13 +127,6 @@ async function run() {
             res.json(result);
         })
 
-        //ORDER API
-        // app.post('/orders', async (req, res) => {
-        //     const order = req.body;
-        //     // console.log('order', order);
-        //     const result = await ordersCollection.insertOne(order);
-        //     res.json(result);
-        // });
 
         //FIND USER INFO BY EMAIL
         app.get('/userInfo', async (req, res) => {
